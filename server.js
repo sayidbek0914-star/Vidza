@@ -11,7 +11,57 @@ app.use(cors());
 app.use(express.json({ limit: '2mb' }));
 
 const PORT = process.env.PORT || 8080;
-
+app.get('/', (_req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="uz">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Vidza</title>
+      <style>
+        body {
+          margin: 0;
+          font-family: Arial, sans-serif;
+          background: #0b0b0f;
+          color: white;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          min-height: 100vh;
+          text-align: center;
+        }
+        .box {
+          width: 90%;
+          max-width: 600px;
+          padding: 30px;
+        }
+        h1 {
+          font-size: 48px;
+          margin-bottom: 10px;
+        }
+        p {
+          color: #aaa;
+          font-size: 18px;
+        }
+        .status {
+          margin-top: 25px;
+          padding: 15px;
+          border-radius: 12px;
+          background: #17171f;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="box">
+        <h1>🎬 VIDZA</h1>
+        <p>AI video yaratish platformasi</p>
+        <div class="status">✅ Server ishlayapti</div>
+      </div>
+    </body>
+    </html>
+  `);
+});
 app.get('/api/health', (_req, res) => {
   res.json({
     ok: true,
