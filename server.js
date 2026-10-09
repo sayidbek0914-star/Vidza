@@ -11,7 +11,171 @@ app.use(cors());
 app.use(express.json({ limit: '2mb' }));
 
 const PORT = process.env.PORT || 8080;
+
 app.get('/', (_req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html lang="uz">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>VIDZA — AI Video</title>
+      <style>
+        * { box-sizing: border-box; }
+        body {
+          margin: 0; padding: 24px 14px; min-height: 100vh;
+          background: #0b0b12; color: white;
+          font-family: Arial, sans-serif;
+        }
+        main { max-width: 600px; margin: auto; }
+        h1 { text-align: center; font-size: 38px; margin-bottom: 8px; }
+        .sub { text-align: center; color: #aaa; margin-bottom: 28px; }
+        .panel {
+          background: #171722; border: 1px solid #303040;
+          padding: 22px; border-radius: 18px;
+        }
+        label { display: block; margin: 18px 0 8px; font-weight: bold; }
+        textarea, select, input[type=file] {
+          width: 100%; padding: 13px; border-radius: 10px;
+          border: 1px solid #414154; background: #101019;
+          color: white; font-size: 16px;
+        }
+        textarea { min-height: 130px; resize: vertical; }
+        button {
+          width: 100%; margin-top: 22px; padding: 15px;
+          border: 0; border-radius: 11px; background: #7657ff;
+          color: white; font-size: 17px; font-weight: bold;
+        }
+        button:disabled { opacity: .6; }
+        #status { margin-top: 18px; line-height: 1.6; overflow-wrap: anywhere; }
+        a { color: #b5a6ff; }
+        .note { color: #aaa; font-size: 13px; line-height: 1.5; }
+      </style>
+    </head>
+    <body>
+      <main>
+        <h1>🎬 VIDZA</h1>
+        <p class="sub">Hikoyangni videoga aylantir</p>
+
+        <div class="panel">
+          <form id="videoForm">
+            <label for="story">Hikoyang</label>
+            <textarea id="story" name="story" required
+              placeholder="Masalan: Sayidbek va Ozoda maktabda ilk bor ko‘z urishtirishdi..."></textarea>
+
+            <label for="style">Video uslubi</label>
+            <select id="style" name="style">
+              <option value="realistic">Realistik</option>
+              <option value="romantic">Romantik</option>
+              <option value="cartoon">Multfilm</option>
+            </select>
+
+            <label for="image">Rasm yuklash (ixtiyoriy)</label>
+            <input id="image" name="image" type="file"
+              accept="image/jpeg,image/png,image/webp">
+            <p class="note">Birinchi sinov uchun bitta rasm tanlashing mumkin.</p>
+
+            <button id="submitBtn" type="submit">🎥 Video yaratish</button>
+          </form>
+
+          <div id="status" role="status" aria-live="polite"></div>
+        </div>
+      </main>
+
+      <script>
+        var form = document.getElementById('videoForm');
+        var button = document.getElementById('submitBtn');
+        var statusBox = document.getElementById('status');
+
+        form.addEventListener('submit', async function(event) {
+          event.preventDefault();
+          button.disabled = true;
+          statusBox.textContent = 'So‘rov yuborilmoqda...';
+
+          try {
+            var data = new FormData(form);
+            var response = await fetch('/api/generate', {
+              method: 'POST',
+              body: data
+            });
+            var result = await response.json();
+
+            if (!response.ok || !result.ok || !result.taskId) {
+              throw new Error(result.error || 'Video yaratish so‘rovi bajarilmadi.');
+            }
+
+            statusBox.textContent = 'So‘rov qabul qilindi. Video tayyorlanmoqda...';
+            var finished = false;
+
+            for (var i = 0; i < 60; i++) {
+              await new Promise(function(resolve) {
+                setTimeout(resolve, 5000);
+              });
+
+              var check = await fetch(
+                '/api/status/' + encodeURIComponent(result.taskId)
+              );
+              var task = await check.json();
+
+              if (!check.ok || !task.ok) {
+                throw new Error(task.error || 'Video holatini tekshirib bo‘lmadi.');
+              }
+
+              if (task.status === 'succeeded') {
+                var outputs = Array.isArray(task.output) ? task.output : [];
+                var url = outputs.find(function(item) {
+                  return typeof item === 'string' &&
+                    /^https?:\\/\\//i.test(item);
+                });
+
+                if (!url) {
+                  url = outputs.find(function(item) {
+                    return item && typeof item.url === 'string';
+                  });
+                  if (url) url = url.url;
+                }
+
+                if (url) {
+                  var link = document.createElement('a');
+                  link.href = url;
+                  link.target = '_blank';
+                  link.rel = 'noopener noreferrer';
+                  link.textContent = '🎬 Tayyor videoni ochish';
+                  statusBox.textContent = 'Video tayyor! ';
+                  statusBox.appendChild(link);
+                } else {
+                  statusBox.textContent =
+                    'Video tayyor, ammo natija havolasini aniqlab bo‘lmadi. Task ID: ' +
+                    result.taskId;
+                }
+
+                finished = true;
+                break;
+              }
+
+              if (task.status === 'failed' || task.status === 'cancelled') {
+                throw new Error('Video yaratish muvaffaqiyatsiz tugadi.');
+              }
+
+              statusBox.textContent =
+                'Video tayyorlanmoqda... Holati: ' + task.status;
+            }
+
+            if (!finished) {
+              statusBox.textContent =
+                'Jarayon hali davom etishi mumkin. Task ID: ' + result.taskId;
+            }
+          } catch (error) {
+            statusBox.textContent = 'Xatolik: ' + error.message;
+          } finally {
+            button.disabled = false;
+          }
+        });
+      </script>
+    </body>
+    </html>
+  `);
+});
   res.send(`
     <!DOCTYPE html>
     <html lang="uz">
