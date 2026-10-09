@@ -13,9 +13,6 @@ app.use(express.json({ limit: '2mb' }));
 const PORT = process.env.PORT || 8080;
 
 app.get('/', (_req, res) => {
-  res.send(`
-    <!DOCTYPE html>
-    <html lang="uz">
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
