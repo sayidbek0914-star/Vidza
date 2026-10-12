@@ -12,7 +12,7 @@ const upload = multer({
 
 app.use(cors());
 app.use(express.json({ limit: '2mb' }));
-
+app.use(express.static('public'));
 const PORT = process.env.PORT || 8080;
 
 function runwayClient() {
