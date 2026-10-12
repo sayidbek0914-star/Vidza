@@ -145,7 +145,15 @@ app.post('/api/generate', upload.single('image'), async (req, res) => {
         ';base64,' + req.file.buffer.toString('base64');
     }
 
-    const task = await runwayClient().imageToVideo.create(payload);
+   
+const client = runwayClient();
+let task;
+
+if (req.file) {
+  task = await client.imageToVideo.create(payload);
+} else {
+  task = await client.textToVideo.create(payload);
+} 
     res.json({ ok: true, taskId: task.id, status: 'submitted' });
   } catch (err) {
     console.error(err);
