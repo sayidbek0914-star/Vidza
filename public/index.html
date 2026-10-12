@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vidza Studio</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101116;color:white;font-family:Arial,sans-serif}
+header{padding:18px;background:#191a23;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:25px;font-weight:bold;color:#8b7cff}
+main{padding:16px;max-width:900px;margin:auto}
+.panel{background:#1b1c26;border-radius:14px;padding:16px;margin-bottom:15px}
+h2{font-size:18px;margin-top:0}
+button,.upload{background:#7564ff;color:white;border:0;padding:11px 14px;border-radius:8px;font-weight:bold;cursor:pointer;display:inline-block;margin:4px 2px}
+input,textarea,select{max-width:100%;padding:10px;border-radius:7px;border:1px solid #424454;background:#11121a;color:white;margin:5px 0}
+video{width:100%;max-height:420px;background:#08080b;border-radius:10px}
+#preview{position:relative}
+#caption{position:absolute;bottom:25px;left:5%;width:90%;text-align:center;font-size:25px;font-weight:bold;text-shadow:2px 2px 4px black;pointer-events:none;white-space:pre-wrap}
+#clips{display:flex;gap:8px;overflow-x:auto;padding:8px 0}
+.clip{min-width:100px;background:#303143;padding:10px;border-radius:8px;font-size:12px}
+small{color:#b8b8c9}
+</style>
+</head>
+<body>
+<header><div class="logo">🎬 VIDZA</div><span>Studio</span></header>
+<main>
+<div class="panel">
+<h2>1. Video yoki rasm qo‘shish</h2>
+<input id="media" type="file" accept="video/*,image/*" multiple>
+<div id="clips"></div>
+</div>
+<div class="panel">
+<h2>2. Ko‘rish oynasi</h2>
+<div id="preview">
+<video id="player" controls playsinline></video>
+<div id="caption"></div>
+</div>
+<p><small>Qo‘shilgan video va rasmlarni yuqoridagi ro‘yxatdan tanlang.</small></p>
+</div>
+<div class="panel">
+<h2>3. Matn qo‘shish</h2>
+<textarea id="words" rows="2" placeholder="Videoga yoziladigan matn..."></textarea><br>
+<button id="addText">Matnni ko‘rsatish</button>
+</div>
+<div class="panel">
+<h2>4. Audio qo‘shish</h2>
+<input id="audioFile" type="file" accept="audio/*">
+<audio id="audio" controls style="width:100%;margin-top:8px"></audio>
+</div>
+<div class="panel">
+<h2>5. Saqlash</h2>
+<button id="download">Videoni yuklab olish</button>
+<p><small>Bu dastlabki versiya: yuklab olish tanlangan video faylni saqlaydi. To‘liq montaj va effektlarni eksport qilish keyingi bosqichda qo‘shiladi.</small></p>
+</div>
+</main>
+<script>
+const media=document.getElementById('media');
+const player=document.getElementById('player');
+const clips=document.getElementById('clips');
+const caption=document.getElementById('caption');
+let files=[], urls=[];
+media.addEventListener('change',()=>{
+  urls.forEach(URL.revokeObjectURL); urls=[]; files=Array.from(media.files); clips.innerHTML='';
+  files.forEach((file,i)=>{
+    const url=URL.createObjectURL(file); urls.push(url);
+    const item=document.createElement('button');
+    item.className='clip'; item.textContent=(i+1)+'. '+file.name;
+    item.onclick=()=>{
+      if(file.type.startsWith('video/')){
+        player.src=url; player.style.display='block';
+      }else{
+        player.pause(); player.removeAttribute('src'); player.load();
+        player.poster=url; player.style.display='block';
+      }
+    };
+    clips.appendChild(item);
+  });
+  if(files.length){
+    const first=files[0];
+    if(first.type.startsWith('video/')){player.poster='';player.src=urls[0];}
+    else{player.pause();player.removeAttribute('src');player.load();player.poster=urls[0];}
+  }
+});
+document.getElementById('addText').onclick=()=>{
+  caption.textContent=document.getElementById('words').value;
+};
+document.getElementById('audioFile').addEventListener('change',e=>{
+  const f=e.target.files[0];if(f)document.getElementById('audio').src=URL.createObjectURL(f);
+});
+document.getElementById('download').onclick=()=>{
+  const f=files.find(x=>x.type.startsWith('video/'));
+  if(!f){alert('Avval video yuklang!');return;}
+  const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download=f.name;a.click();
+};
+</script>
+</body>
+</html>
