@@ -4,96 +4,364 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Vidza Studio</title>
+<title>VIDZA Studio</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#101116;color:white;font-family:Arial,sans-serif}
-header{padding:18px;background:#191a23;display:flex;justify-content:space-between;align-items:center}
-.logo{font-size:25px;font-weight:bold;color:#8b7cff}
-main{padding:16px;max-width:900px;margin:auto}
-.panel{background:#1b1c26;border-radius:14px;padding:16px;margin-bottom:15px}
-h2{font-size:18px;margin-top:0}
-button,.upload{background:#7564ff;color:white;border:0;padding:11px 14px;border-radius:8px;font-weight:bold;cursor:pointer;display:inline-block;margin:4px 2px}
-input,textarea,select{max-width:100%;padding:10px;border-radius:7px;border:1px solid #424454;background:#11121a;color:white;margin:5px 0}
-video{width:100%;max-height:420px;background:#08080b;border-radius:10px}
-#preview{position:relative}
-#caption{position:absolute;bottom:25px;left:5%;width:90%;text-align:center;font-size:25px;font-weight:bold;text-shadow:2px 2px 4px black;pointer-events:none;white-space:pre-wrap}
-#clips{display:flex;gap:8px;overflow-x:auto;padding:8px 0}
-.clip{min-width:100px;background:#303143;padding:10px;border-radius:8px;font-size:12px}
-small{color:#b8b8c9}
+body{margin:0;background:#101014;color:#fff;font-family:Arial,sans-serif}
+header{padding:16px;background:#191920;border-bottom:1px solid #30303b;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:25px;font-weight:bold;color:#a78bfa}
+button,.upload{background:#292936;color:white;border:1px solid #444454;border-radius:10px;padding:11px 14px;font-size:14px;cursor:pointer}
+button.primary{background:#7c3aed;border:0;font-weight:bold}
+main{max-width:950px;margin:auto;padding:15px}
+h3{font-size:15px;margin:18px 0 10px}
+.preview{background:#050507;border:1px solid #34343e;border-radius:14px;overflow:hidden;position:relative;min-height:220px;display:flex;align-items:center;justify-content:center}
+#player{width:100%;max-height:52vh;display:none;object-fit:contain}
+#photo{max-width:100%;max-height:52vh;display:none;object-fit:contain}
+#placeholder{text-align:center;color:#999;padding:50px 15px}
+#caption{position:absolute;left:5%;right:5%;bottom:12%;text-align:center;font-size:25px;font-weight:bold;color:white;text-shadow:2px 2px 5px black;overflow-wrap:anywhere;pointer-events:none}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+input[type=file]{display:none}
+input[type=text]{width:100%;padding:13px;border-radius:9px;border:1px solid #444;background:#1c1c25;color:white}
+.timeline{display:flex;gap:10px;overflow-x:auto;padding:10px 2px}
+.clip{min-width:110px;max-width:140px;flex:0 0 auto;border:1px solid #424250;border-radius:10px;padding:10px;background:#1a1a23;overflow:hidden}
+.clip.selected{border:2px solid #a78bfa}
+.clip button{width:100%;padding:8px 4px;margin-top:6px}
+.clipname{font-size:12px;overflow-wrap:anywhere;color:#ddd}
+.small{color:#999;font-size:12px;line-height:1.5}
+.panel{background:#191920;border:1px solid #30303b;border-radius:13px;padding:14px;margin-top:14px}
+#status{color:#c4b5fd;font-size:13px;margin-top:10px}
+footer{text-align:center;color:#777;font-size:12px;padding:25px}
 </style>
 </head>
 <body>
-<header><div class="logo">🎬 VIDZA</div><span>Studio</span></header>
+<header>
+  <div class="logo">VIDZA</div>
+  <button class="primary" id="exportBtn">⬇ Eksport</button>
+</header>
+
 <main>
-<div class="panel">
-<h2>1. Video yoki rasm qo‘shish</h2>
-<input id="media" type="file" accept="video/*,image/*" multiple>
-<div id="clips"></div>
-</div>
-<div class="panel">
-<h2>2. Ko‘rish oynasi</h2>
-<div id="preview">
-<video id="player" controls playsinline></video>
-<div id="caption"></div>
-</div>
-<p><small>Qo‘shilgan video va rasmlarni yuqoridagi ro‘yxatdan tanlang.</small></p>
-</div>
-<div class="panel">
-<h2>3. Matn qo‘shish</h2>
-<textarea id="words" rows="2" placeholder="Videoga yoziladigan matn..."></textarea><br>
-<button id="addText">Matnni ko‘rsatish</button>
-</div>
-<div class="panel">
-<h2>4. Audio qo‘shish</h2>
-<input id="audioFile" type="file" accept="audio/*">
-<audio id="audio" controls style="width:100%;margin-top:8px"></audio>
-</div>
-<div class="panel">
-<h2>5. Saqlash</h2>
-<button id="download">Videoni yuklab olish</button>
-<p><small>Bu dastlabki versiya: yuklab olish tanlangan video faylni saqlaydi. To‘liq montaj va effektlarni eksport qilish keyingi bosqichda qo‘shiladi.</small></p>
-</div>
+  <section class="panel">
+    <h3>🎬 1. Media qo‘shish</h3>
+    <div class="tools">
+      <label class="upload">＋ Video / rasm
+        <input id="mediaInput" type="file" accept="video/*,image/*" multiple>
+      </label>
+      <label class="upload">＋ Musiqa
+        <input id="audioInput" type="file" accept="audio/*">
+      </label>
+    </div>
+    <div class="small">Telefoningizdan video, rasm va audio fayllarni tanlang.</div>
+  </section>
+
+  <section class="panel">
+    <h3>▶ 2. Ko‘rish oynasi</h3>
+    <div class="preview">
+      <div id="placeholder">VIDZA STUDIO<br><br>Avval video yoki rasm qo‘shing</div>
+      <video id="player" controls playsinline></video>
+      <img id="photo" alt="Tanlangan rasm">
+      <div id="caption"></div>
+    </div>
+    <div class="tools">
+      <button id="playBtn">▶ Ko‘rish</button>
+      <button id="stopBtn">■ To‘xtatish</button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h3>✂️ 3. Montaj yo‘lagi</h3>
+    <div class="small">Klipni tanlash uchun uning ustiga bosing.</div>
+    <div id="timeline" class="timeline">
+      <div class="small">Hozircha klip yo‘q.</div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h3>📝 4. Matn qo‘shish</h3>
+    <input id="textInput" type="text" placeholder="Videoda chiqadigan matnni yozing">
+    <div class="tools">
+      <button class="primary" id="textBtn">Matnni qo‘llash</button>
+      <button id="clearTextBtn">Matnni o‘chirish</button>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h3>🎵 5. Musiqa</h3>
+    <div id="audioName" class="small">Hali audio tanlanmagan.</div>
+    <audio id="music" controls style="width:100%;margin-top:10px;display:none"></audio>
+  </section>
+
+  <section class="panel">
+    <h3>💾 6. Tayyor videoni saqlash</h3>
+    <div class="small">Eksport tanlangan klipni va uning ustidagi matnni yozib oladi. Video klip davomiyligi, rasm esa taxminan 5 soniya bo‘ladi. Bu dastlabki montaj versiyasi.</div>
+    <div class="tools">
+      <button class="primary" id="exportBtn2">Videoni yaratish va yuklab olish</button>
+    </div>
+    <div id="status"></div>
+  </section>
 </main>
+
+<footer>VIDZA Studio · Creator: Sayidbek</footer>
+
 <script>
-const media=document.getElementById('media');
+const mediaInput=document.getElementById('mediaInput');
+const audioInput=document.getElementById('audioInput');
 const player=document.getElementById('player');
-const clips=document.getElementById('clips');
+const photo=document.getElementById('photo');
+const placeholder=document.getElementById('placeholder');
 const caption=document.getElementById('caption');
-let files=[], urls=[];
-media.addEventListener('change',()=>{
-  urls.forEach(URL.revokeObjectURL); urls=[]; files=Array.from(media.files); clips.innerHTML='';
-  files.forEach((file,i)=>{
-    const url=URL.createObjectURL(file); urls.push(url);
-    const item=document.createElement('button');
-    item.className='clip'; item.textContent=(i+1)+'. '+file.name;
-    item.onclick=()=>{
-      if(file.type.startsWith('video/')){
-        player.src=url; player.style.display='block';
-      }else{
-        player.pause(); player.removeAttribute('src'); player.load();
-        player.poster=url; player.style.display='block';
-      }
-    };
-    clips.appendChild(item);
-  });
-  if(files.length){
-    const first=files[0];
-    if(first.type.startsWith('video/')){player.poster='';player.src=urls[0];}
-    else{player.pause();player.removeAttribute('src');player.load();player.poster=urls[0];}
+const timeline=document.getElementById('timeline');
+const textInput=document.getElementById('textInput');
+const music=document.getElementById('music');
+const statusBox=document.getElementById('status');
+
+let clips=[];
+let selected=-1;
+let musicURL='';
+
+function showStatus(message){statusBox.textContent=message;}
+
+mediaInput.addEventListener('change',()=>{
+  const picked=Array.from(mediaInput.files||[]);
+  for(const file of picked){
+    if(!file.type.startsWith('video/')&&!file.type.startsWith('image/'))continue;
+    clips.push({file,url:URL.createObjectURL(file)});
   }
+  mediaInput.value='';
+  drawTimeline();
+  if(clips.length)selectClip(clips.length-1);
 });
-document.getElementById('addText').onclick=()=>{
-  caption.textContent=document.getElementById('words').value;
-};
-document.getElementById('audioFile').addEventListener('change',e=>{
-  const f=e.target.files[0];if(f)document.getElementById('audio').src=URL.createObjectURL(f);
+
+function drawTimeline(){
+  timeline.innerHTML='';
+  if(!clips.length){
+    timeline.innerHTML='<div class="small">Hozircha klip yo‘q.</div>';
+    return;
+  }
+  clips.forEach((clip,index)=>{
+    const card=document.createElement('div');
+    card.className='clip'+(index===selected?' selected':'');
+    const name=document.createElement('div');
+    name.className='clipname';
+    name.textContent=(clip.file.type.startsWith('video/')?'🎬 ':'🖼️ ')+clip.file.name;
+    const choose=document.createElement('button');
+    choose.textContent='Tanlash';
+    choose.onclick=()=>selectClip(index);
+    card.append(name,choose);
+    timeline.appendChild(card);
+  });
+}
+
+function selectClip(index){
+  if(index<0||index>=clips.length)return;
+  selected=index;
+  const clip=clips[index];
+  player.pause();
+  player.removeAttribute('src');
+  photo.removeAttribute('src');
+  player.style.display='none';
+  photo.style.display='none';
+  placeholder.style.display='none';
+  if(clip.file.type.startsWith('video/')){
+    player.src=clip.url;
+    player.style.display='block';
+    player.load();
+  }else{
+    photo.src=clip.url;
+    photo.style.display='block';
+  }
+  drawTimeline();
+  showStatus('Tanlangan klip: '+clip.file.name);
+}
+
+audioInput.addEventListener('change',()=>{
+  const file=audioInput.files&&audioInput.files[0];
+  if(!file)return;
+  if(musicURL)URL.revokeObjectURL(musicURL);
+  musicURL=URL.createObjectURL(file);
+  music.src=musicURL;
+  music.style.display='block';
+  document.getElementById('audioName').textContent='Audio: '+file.name;
+  showStatus('Audio qo‘shildi. Musiqani alohida tinglashingiz mumkin.');
 });
-document.getElementById('download').onclick=()=>{
-  const f=files.find(x=>x.type.startsWith('video/'));
-  if(!f){alert('Avval video yuklang!');return;}
-  const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download=f.name;a.click();
+
+document.getElementById('textBtn').onclick=()=>{
+  caption.textContent=textInput.value.trim();
 };
+document.getElementById('clearTextBtn').onclick=()=>{
+  textInput.value='';
+  caption.textContent='';
+};
+document.getElementById('playBtn').onclick=()=>{
+  if(selected<0){showStatus('Avval video yoki rasm tanlang.');return;}
+  if(clips[selected].file.type.startsWith('video/')){
+    player.play().catch(()=>showStatus('Videoni ko‘rish uchun oynadagi Play tugmasini bosing.'));
+  }else{
+    showStatus('Rasm ko‘rish oynasida turibdi.');
+  }
+};
+document.getElementById('stopBtn').onclick=()=>{
+  player.pause();
+  player.currentTime=0;
+};
+
+async function exportClip(){
+  if(selected<0){
+    showStatus('Avval montaj yo‘lagidan video yoki rasm tanlang.');
+    return;
+  }
+  if(!window.MediaRecorder||!HTMLCanvasElement.prototype.captureStream){
+    showStatus('Bu brauzerda video eksport qilish qo‘llab-quvvatlanmasligi mumkin. Boshqa brauzerda sinab ko‘ring.');
+    return;
+  }
+
+  const clip=clips[selected];
+  const isVideo=clip.file.type.startsWith('video/');
+  const canvas=document.createElement('canvas');
+  canvas.width=1280;
+  canvas.height=720;
+  const ctx=canvas.getContext('2d');
+  const stream=canvas.captureStream(30);
+  let recorder;
+  let chunks=[];
+  let image=null;
+  let audioContext=null;
+  let audioSource=null;
+  let audioElementSource=null;
+  let animationId=0;
+  let stopped=false;
+
+  function drawFrame(){
+    ctx.fillStyle='#08080c';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    const media=isVideo?player:image;
+    if(media){
+      const w=media.videoWidth||media.naturalWidth||1;
+      const h=media.videoHeight||media.naturalHeight||1;
+      const scale=Math.min(canvas.width/w,canvas.height/h);
+      const dw=w*scale,dh=h*scale;
+      try{ctx.drawImage(media,(canvas.width-dw)/2,(canvas.height-dh)/2,dw,dh);}catch(e){}
+    }
+    const text=caption.textContent;
+    if(text){
+      ctx.font='bold 44px Arial';
+      ctx.textAlign='center';
+      ctx.textBaseline='bottom';
+      ctx.lineWidth=5;
+      ctx.strokeStyle='black';
+      ctx.fillStyle='white';
+      const words=text.split(/\s+/);
+      const lines=[];
+      let line='';
+      for(const word of words){
+        const test=line?line+' '+word:word;
+        if(ctx.measureText(test).width>canvas.width-100&&line){
+          lines.push(line);line=word;
+        }else line=test;
+      }
+      if(line)lines.push(line);
+      lines.slice(-3).forEach((part,i)=>{
+        const y=canvas.height-75-(Math.min(lines.length,3)-1-i)*52;
+        ctx.strokeText(part,canvas.width/2,y);
+        ctx.fillText(part,canvas.width/2,y);
+      });
+    }
+    if(!stopped)animationId=requestAnimationFrame(drawFrame);
+  }
+
+  try{
+    if(isVideo){
+      player.pause();
+      player.currentTime=0;
+      await new Promise((resolve,reject)=>{
+        if(player.readyState>=2)return resolve();
+        player.onloadeddata=()=>resolve();
+        player.onerror=()=>reject(new Error('Videoni ochib bo‘lmadi.'));
+      });
+    }else{
+      image=new Image();
+      image.src=clip.url;
+      await new Promise((resolve,reject)=>{
+        image.onload=resolve;
+        image.onerror=()=>reject(new Error('Rasmni ochib bo‘lmadi.'));
+      });
+    }
+
+    const types=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'];
+    const mimeType=types.find(t=>MediaRecorder.isTypeSupported(t));
+    recorder=mimeType?new MediaRecorder(stream,{mimeType}):new MediaRecorder(stream);
+    recorder.ondataavailable=e=>{if(e.data&&e.data.size)chunks.push(e.data);};
+    recorder.onerror=()=>showStatus('Eksport paytida xato yuz berdi.');
+    const finished=new Promise(resolve=>recorder.onstop=resolve);
+
+    if(music.src){
+      try{
+        audioContext=new (window.AudioContext||window.webkitAudioContext)();
+        audioElementSource=audioContext.createMediaElementSource(music);
+        audioSource=audioContext.createMediaStreamDestination();
+        audioElementSource.connect(audioSource);
+        audioElementSource.connect(audioContext.destination);
+        audioSource.stream.getAudioTracks().forEach(t=>stream.addTrack(t));
+        await audioContext.resume();
+        music.currentTime=0;
+        await music.play();
+      }catch(e){
+        showStatus('Video eksport qilinmoqda. Musiqa qo‘shilmadi; brauzer audio yozishga ruxsat bermadi.');
+      }
+    }
+
+    stopped=false;
+    drawFrame();
+    recorder.start();
+
+    const duration=isVideo&&Number.isFinite(player.duration)&&player.duration>0
+      ?Math.min(player.duration,600):5;
+
+    if(isVideo){
+      await player.play();
+      await new Promise(resolve=>{
+        const timeout=setTimeout(resolve,duration*1000);
+        player.onended=()=>{clearTimeout(timeout);resolve();};
+      });
+    }else{
+      await new Promise(resolve=>setTimeout(resolve,5000));
+    }
+
+    stopped=true;
+    cancelAnimationFrame(animationId);
+    recorder.stop();
+    player.pause();
+    music.pause();
+    await finished;
+
+    const blob=new Blob(chunks,{type:recorder.mimeType||'video/webm'});
+    if(!blob.size)throw new Error('Video fayli yaratilmadi.');
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download='vidza-video.webm';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),60000);
+    showStatus('Eksport tugadi! VIDZA video fayli yuklab olindi.');
+  }catch(err){
+    stopped=true;
+    cancelAnimationFrame(animationId);
+    if(recorder&&recorder.state!=='inactive'){
+      try{recorder.stop();}catch(e){}
+    }
+    player.pause();
+    music.pause();
+    showStatus('Eksport xatosi: '+(err.message||'Noma’lum xato')+' . Boshqa brauzerda sinab ko‘ring.');
+  }finally{
+    if(audioContext){
+      try{await audioContext.close();}catch(e){}
+    }
+  }
+}
+
+document.getElementById('exportBtn').onclick=exportClip;
+document.getElementById('exportBtn2').onclick=exportClip;
 </script>
 </body>
 </html>
